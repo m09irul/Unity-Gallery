@@ -1,18 +1,15 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using System.IO;
 using TMPro;
 using UnityEngine.EventSystems;
-using UnityEngine.Networking;
 
 public class GalleryManager : MonoBehaviour
 {
     public GameObject pictureContainer;
 
-    public GameObject fullScreenPanelImage;
-    public GameObject fullScreenPanelRawImage;
+    public GameObject fullScreenPanel;
 
 	public string path;
 
@@ -21,14 +18,12 @@ public class GalleryManager : MonoBehaviour
 	FileInfo[] fileinfo;
 	List<string> imageList = new List<string>();
 
-	public bool isRawImage;
-
 	// Start is called before the first frame update
 	void Start()
     {
 		ContainerText.text = "";
 
-		fullScreenPanelImage.SetActive(false);
+		fullScreenPanel.SetActive(false);
 
 		GetFileList();
 
@@ -36,12 +31,12 @@ public class GalleryManager : MonoBehaviour
 
 	public void GetFileList()
 	{
+		//clear all previous data
+		CleanPictureContainer();
+
 		if (path != "")
 		{
 			DirectoryInfo dataDir = new DirectoryInfo(path);
-
-			//clear all previous data
-			CleanPictureContainer();
 
 			try
 			{
@@ -87,7 +82,11 @@ public class GalleryManager : MonoBehaviour
 			}
 		}
 		else
+		{
+			ContainerText.gameObject.SetActive(true);
+
 			ContainerText.text = "Path null";
+		}
 	}
 
 	private void PickImage(int maxSize)
@@ -108,45 +107,28 @@ public class GalleryManager : MonoBehaviour
 					return;
 				}
 
-				// convert texture to a sprite
-				// add this to image UI component
-				// preserve aspect
-				if (!isRawImage)
-				{
-					GameObject obj = new GameObject("Image", typeof(Image));
+				/// convert texture to a sprite
+				/// add this to image UI component
+				/// preserve aspect
 
-					RectTransform rt = obj.GetComponent<RectTransform>();
-					rt.SetParent(pictureContainer.transform);
-					ResetRectTransform(rt);
+				//We need a parent rect which contains child rect in order to preserve ratio of the texture.
+				GameObject pObj = new GameObject("Image holder", typeof(RectTransform));
 
-					s = Sprite.Create(m_texture, new Rect(0, 0, m_texture.width, m_texture.height), Vector2.zero);
+				RectTransform pRT = pObj.GetComponent<RectTransform>();
+				pRT.SetParent(pictureContainer.transform);
+				ResetRectTransform(pRT);
 
-					Image img = obj.GetComponent<Image>();
-					img.sprite = s;
-					img.preserveAspect = true;
+				GameObject obj = new GameObject("Image", typeof(RawImage));
 
-					obj.AddComponent<Button>().onClick.AddListener(ButtonAction);
-				}
-				else
-				{
-					GameObject pObj = new GameObject("Image holder", typeof(RectTransform));
+				RectTransform rt = obj.GetComponent<RectTransform>();
+				rt.SetParent(pObj.transform);
+				ResetRectTransform(rt);
 
-					RectTransform pRT = pObj.GetComponent<RectTransform>();
-					pRT.SetParent(pictureContainer.transform);
-					ResetRectTransform(pRT);
+				RawImage img = obj.GetComponent<RawImage>();
+				img.texture = m_texture;
+				PreserveRawImageApect.SizeToParent(img);
 
-					GameObject obj = new GameObject("Image", typeof(RawImage));
-
-					RectTransform rt = obj.GetComponent<RectTransform>();
-					rt.SetParent(pObj.transform);
-					ResetRectTransform(rt);
-
-					RawImage img = obj.GetComponent<RawImage>();
-					img.texture = m_texture;
-					PreserveRawImageApect.SizeToParent(img);
-
-					obj.AddComponent<Button>().onClick.AddListener(ButtonAction);
-				}
+				obj.AddComponent<Button>().onClick.AddListener(ButtonAction);
 			}
 			
 		}
@@ -163,28 +145,18 @@ public class GalleryManager : MonoBehaviour
 	//show the image full screen
 	void ButtonAction()
 	{
-		if (!isRawImage)
-		{
-			Sprite my_sprite = EventSystem.current.currentSelectedGameObject.GetComponent<Image>().sprite;
+		//get the texture of the clicked image
+		//show on full screen
 
-			fullScreenPanelImage.SetActive(true);
+		Texture my_texture = EventSystem.current.currentSelectedGameObject.GetComponent<RawImage>().texture;
 
-			Image img = fullScreenPanelImage.transform.GetChild(0).GetComponent<Image>();
+		fullScreenPanel.SetActive(true);
 
-			img.sprite = my_sprite;
-			img.preserveAspect = true;
-		}
-		else
-		{
-			Texture my_texture = EventSystem.current.currentSelectedGameObject.GetComponent<RawImage>().texture;
+		RawImage img = fullScreenPanel.transform.GetChild(0).GetComponent<RawImage>();
 
-			fullScreenPanelRawImage.SetActive(true);
+		img.texture = my_texture;
 
-			RawImage img = fullScreenPanelRawImage.transform.GetChild(0).GetComponent<RawImage>();
-
-			img.texture = my_texture;
-			PreserveRawImageApect.SizeToParent(img);
-		}
+		PreserveRawImageApect.SizeToParent(img);
 	}
 
 	void CleanPictureContainer()

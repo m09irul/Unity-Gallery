@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
-public class Test : MonoBehaviour
+public class PathInputTaker : MonoBehaviour
 {
     public GalleryManager gm;
     void Start()
@@ -14,11 +14,11 @@ public class Test : MonoBehaviour
         input.onEndEdit.AddListener(SubmitName);  // This also works
     }
 
-    public void SubmitName(string arg0)
+    public void SubmitName(string p)
     {
-        Debug.Log(arg0);
+        Debug.Log(p);
 
-        gm.path = arg0;
+        gm.path = p;
 
         gm.GetFileList();
     }
