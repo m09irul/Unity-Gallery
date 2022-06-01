@@ -11,7 +11,8 @@ public class GalleryManager : MonoBehaviour
 {
     public GameObject pictureContainer;
 
-    public GameObject fullScreenPanel;
+    public GameObject fullScreenPanelImage;
+    public GameObject fullScreenPanelRawImage;
 
 	public string path;
 
@@ -20,12 +21,14 @@ public class GalleryManager : MonoBehaviour
 	FileInfo[] fileinfo;
 	List<string> imageList = new List<string>();
 
+	public bool isRawImage;
+
 	// Start is called before the first frame update
 	void Start()
     {
 		ContainerText.text = "";
 
-		fullScreenPanel.SetActive(false);
+		fullScreenPanelImage.SetActive(false);
 
 		GetFileList();
 
@@ -79,6 +82,8 @@ public class GalleryManager : MonoBehaviour
 				ContainerText.gameObject.SetActive(true);
 
 				ContainerText.text = "Directory Invalid";
+
+				Debug.Log(e);
 			}
 		}
 		else
@@ -106,37 +111,80 @@ public class GalleryManager : MonoBehaviour
 				// convert texture to a sprite
 				// add this to image UI component
 				// preserve aspect
-				GameObject img = new GameObject();
+				if (!isRawImage)
+				{
+					GameObject obj = new GameObject("Image", typeof(Image));
 
-				s = Sprite.Create(m_texture, new Rect(0, 0, m_texture.width, m_texture.height), Vector2.zero);
-				
-				img.AddComponent<Image>().sprite = s;
+					RectTransform rt = obj.GetComponent<RectTransform>();
+					rt.SetParent(pictureContainer.transform);
+					ResetRectTransform(rt);
 
-				img.AddComponent<Button>().onClick.AddListener(ButtonAction);
+					s = Sprite.Create(m_texture, new Rect(0, 0, m_texture.width, m_texture.height), Vector2.zero);
 
-				RectTransform rt = img.GetComponent<RectTransform>();
-				rt.SetParent(pictureContainer.transform);
-				rt.localScale = Vector3.one;
+					Image img = obj.GetComponent<Image>();
+					img.sprite = s;
+					img.preserveAspect = true;
 
-				img.GetComponent<Image>().preserveAspect = true;
+					obj.AddComponent<Button>().onClick.AddListener(ButtonAction);
+				}
+				else
+				{
+					GameObject pObj = new GameObject("Image holder", typeof(RectTransform));
+
+					RectTransform pRT = pObj.GetComponent<RectTransform>();
+					pRT.SetParent(pictureContainer.transform);
+					ResetRectTransform(pRT);
+
+					GameObject obj = new GameObject("Image", typeof(RawImage));
+
+					RectTransform rt = obj.GetComponent<RectTransform>();
+					rt.SetParent(pObj.transform);
+					ResetRectTransform(rt);
+
+					RawImage img = obj.GetComponent<RawImage>();
+					img.texture = m_texture;
+					PreserveRawImageApect.SizeToParent(img);
+
+					obj.AddComponent<Button>().onClick.AddListener(ButtonAction);
+				}
 			}
 			
 		}
 	}
 
+	//Reset Rect transform position and scale
+	void ResetRectTransform(RectTransform rt)
+	{
+		rt.position = Vector3.zero;
+		rt.localScale = Vector3.one;
+	}
 
 	//Handles click action when image is pressed.
 	//show the image full screen
 	void ButtonAction()
 	{
-		Sprite my_sprite = EventSystem.current.currentSelectedGameObject.GetComponent<Image>().sprite;
+		if (!isRawImage)
+		{
+			Sprite my_sprite = EventSystem.current.currentSelectedGameObject.GetComponent<Image>().sprite;
 
-		fullScreenPanel.SetActive(true);
+			fullScreenPanelImage.SetActive(true);
 
-		Image img = fullScreenPanel.transform.GetChild(0).GetComponent<Image>();
+			Image img = fullScreenPanelImage.transform.GetChild(0).GetComponent<Image>();
 
-		img.sprite = my_sprite;
-		img.preserveAspect = true;
+			img.sprite = my_sprite;
+			img.preserveAspect = true;
+		}
+		else
+		{
+			Texture my_texture = EventSystem.current.currentSelectedGameObject.GetComponent<RawImage>().texture;
+
+			fullScreenPanelRawImage.SetActive(true);
+
+			RawImage img = fullScreenPanelRawImage.transform.GetChild(0).GetComponent<RawImage>();
+
+			img.texture = my_texture;
+			PreserveRawImageApect.SizeToParent(img);
+		}
 	}
 
 	void CleanPictureContainer()
