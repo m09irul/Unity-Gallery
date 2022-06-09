@@ -7,6 +7,7 @@ using UnityEngine.EventSystems;
 
 public class GalleryManager : MonoBehaviour
 {
+	
     public GameObject pictureContainer;
 
     public GameObject fullScreenPanel;
@@ -166,5 +167,16 @@ public class GalleryManager : MonoBehaviour
 			GameObject.Destroy(child.gameObject);
 		}
 	}
+
+	#region Debug
+
+	public void capture()
+	{
+		Debug.Log("Saving");
+		
+		ScreenCapture.CaptureScreenshot("1.png");
+	}
+
+	#endregion
 
 }

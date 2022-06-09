@@ -18,7 +18,7 @@ public class PathInputTaker : MonoBehaviour
     {
         Debug.Log(p);
 
-        gm.path = p;
+        gm.path = Application.persistentDataPath + p;
 
         gm.GetFileList();
     }
