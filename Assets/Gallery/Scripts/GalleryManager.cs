@@ -4,6 +4,8 @@ using UnityEngine.UI;
 using System.IO;
 using TMPro;
 using UnityEngine.EventSystems;
+using System.Collections;
+using System;
 
 public class GalleryManager : MonoBehaviour
 {
@@ -12,16 +14,23 @@ public class GalleryManager : MonoBehaviour
 
     public GameObject fullScreenPanel;
 
-	public string path;
+	string album ; // initalized on start
+	string path; // initalized on start
 
 	public TextMeshProUGUI ContainerText;
 
 	FileInfo[] fileinfo;
 	List<string> imageList = new List<string>();
 
+	Texture2D texture;
+
 	// Start is called before the first frame update
 	void Start()
     {
+		album = "Test folder";
+		
+		path = "/storage/emulated/0/DCIM/" + album + "/";
+
 		ContainerText.text = "";
 
 		fullScreenPanel.SetActive(false);
@@ -168,15 +177,60 @@ public class GalleryManager : MonoBehaviour
 		}
 	}
 
-	#region Debug
+	 public void Capture()
+    {
+        StartCoroutine(TakeImage());
+    }
+    
+    IEnumerator TakeImage()
+    {  
+        yield return new WaitForEndOfFrame();
 
-	public void capture()
-	{
-		Debug.Log("Saving");
+        ShowImageAfterCapture();
+    }
+
+    private void ShowImageAfterCapture()
+    {
+        //get the texture
+		//show on full screen
+
+		texture = ScreenCapture.CaptureScreenshotAsTexture();
+
+		fullScreenPanel.SetActive(true);
+
+		RawImage img = fullScreenPanel.transform.GetChild(0).GetComponent<RawImage>();
+
+		img.texture = texture;
+
+		PreserveRawImageApect.SizeToParent(img);
+
+    }
+
+    public void SaveImage()
+    {
+        StartCoroutine(ProcessSave());
+    }
+    IEnumerator ProcessSave()
+    {
+        //temp save
+
+        byte[] mediaBytes = texture.EncodeToPNG();
+
+        string filename = System.DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss") + ".png";
+
+        NativeGallery.SaveImageToGallery(mediaBytes, album, filename, null);
+
+        yield return new WaitForEndOfFrame();
+
+		fullScreenPanel.SetActive(false);
 		
-		ScreenCapture.CaptureScreenshot("1.png");
-	}
+		GetFileList();
+    }
 
-	#endregion
+    public void DeleteImage()
+    {
+        fullScreenPanel.SetActive(false);
+    }
+
 
 }
