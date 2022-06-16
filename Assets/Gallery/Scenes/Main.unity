@@ -665,6 +665,7 @@ GameObject:
   m_Component:
   - component: {fileID: 578461237}
   - component: {fileID: 578461236}
+  - component: {fileID: 578461238}
   m_Layer: 0
   m_Name: GalleryManager
   m_TagString: Untagged
@@ -679,14 +680,13 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 578461235}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1cfe74a03c750de4b9f4ba6bb444c462, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   pictureContainer: {fileID: 903788977}
   fullScreenPanel: {fileID: 452063459}
-  path: 
   ContainerText: {fileID: 462835790}
 --- !u!4 &578461237
 Transform:
@@ -703,6 +703,19 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &578461238
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 578461235}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3b64179c90f860245ab9602dc3743f7f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  temp: {fileID: 0}
 --- !u!1 &631809985
 GameObject:
   m_ObjectHideFlags: 0
