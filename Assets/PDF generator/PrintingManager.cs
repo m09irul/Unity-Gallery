@@ -9,17 +9,20 @@ using UnityEditor;
 
 public class PrintingManager : MonoBehaviour
 {
-    [SerializeField] Sprite temp;
-
-    string path = "C:/Users/Abirk/Downloads/PDF/1.pdf";
-
+    string path = null;
+    public Texture2D tmp;
     private void Start()
     {
-        string dirPtah = "C:/Users/Abirk/Downloads/PDF";
+        string dirPtah = Application.persistentDataPath + "/PDF";
+        //string dirPtah = "C:/Users/Abirk/Downloads/PDF";
         if (!System.IO.Directory.Exists(dirPtah))
         {
             System.IO.Directory.CreateDirectory(dirPtah);
         }
+        
+      //  path = Path.Combine("/system/fonts/", "DroidSans.ttf");
+        //iTextSharp.text.FontFactory.Register(path, "DroidSans");
+
 
         GenerateFile();
     }
@@ -28,8 +31,8 @@ public class PrintingManager : MonoBehaviour
     {
 
         //int index = HUDManager.instance.printablePerfomanceValueIndex;
-        //path = Application.persistentDataPath+ "/PDF/Performance " + CsvHandler.instance.alldetails[index].simulationNo+".pdf";
-
+        //path = "C:/Users/Abirk/Downloads/PDF/1.pdf";
+        path = Application.persistentDataPath + "/PDF/1.pdf";
         using (var fileStream = new FileStream(path, FileMode.OpenOrCreate, FileAccess.ReadWrite))
         {
             var document = new Document(PageSize.A4, 10f, 10f, 30f, 0f);
@@ -39,18 +42,18 @@ public class PrintingManager : MonoBehaviour
 
             document.NewPage();
 
-            //browser title
+            //browser titles
             document.AddTitle("Test");
-            var baseFont = BaseFont.CreateFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1252, BaseFont.NOT_EMBEDDED);
+           // var font = iTextSharp.text.FontFactory.GetFont("DroidSans",  BaseFont.IDENTITY_H, false, 10, iTextSharp.text.Font.NORMAL);
 
            
 
         #region  customize font
-            BaseFont bf = BaseFont.CreateFont(BaseFont.TIMES_ROMAN, BaseFont.CP1252, BaseFont.NOT_EMBEDDED);
-            iTextSharp.text.Font font = new iTextSharp.text.Font(bf, 12, iTextSharp.text.Font.NORMAL);
+            // BaseFont bf = BaseFont.CreateFont(BaseFont.TIMES_ROMAN, BaseFont.CP1252, BaseFont.NOT_EMBEDDED);
+            // iTextSharp.text.Font font = new iTextSharp.text.Font(bf, 12, iTextSharp.text.Font.NORMAL);
 
-            BaseFont bf2 = BaseFont.CreateFont(BaseFont.TIMES_ROMAN, BaseFont.CP1252, BaseFont.NOT_EMBEDDED);
-            iTextSharp.text.Font font2 = new iTextSharp.text.Font(bf2, 12, iTextSharp.text.Font.BOLDITALIC);
+            // BaseFont bf2 = BaseFont.CreateFont(BaseFont.TIMES_ROMAN, BaseFont.CP1252, BaseFont.NOT_EMBEDDED);
+            // iTextSharp.text.Font font2 = new iTextSharp.text.Font(bf2, 12, iTextSharp.text.Font.BOLDITALIC);
         #endregion
 
         #region logo area
@@ -73,7 +76,7 @@ public class PrintingManager : MonoBehaviour
 
 
         #region headline
-            Paragraph headline = new Paragraph("Welding Performance Report");
+            Paragraph headline = new Paragraph("Test report");
             headline.Font.Size = 25;
             headline.Alignment = Element.ALIGN_CENTER;
             headline.SpacingAfter = 8;
@@ -98,14 +101,14 @@ public class PrintingManager : MonoBehaviour
             table.DefaultCell.Padding = 8;
             table.DefaultCell.BackgroundColor = (new BaseColor(152, 152, 152, 40));
 
-            table.AddCell(new Phrase("English", font));  
-            table.AddCell(new Phrase("70", font2));
+            table.AddCell(new Phrase("English"));  
+            table.AddCell(new Phrase("70"));
 
-            table.AddCell(new Phrase("Bangla", font));  
-            table.AddCell(new Phrase("20", font2)); 
+            table.AddCell(new Phrase("Bangla"));  
+            table.AddCell(new Phrase("20")); 
 
-            table.AddCell(new Phrase("ICT", font));
-            table.AddCell(new Phrase("60", font2));
+            table.AddCell(new Phrase("ICT"));
+            table.AddCell(new Phrase("60"));
 
             document.Add(table);
 
@@ -115,18 +118,25 @@ public class PrintingManager : MonoBehaviour
 
         #region suggestion image area
 
-            string suggImagePath = "C:/Users/Abirk/Downloads/q.png";
-            
+            //string suggImagePath = "/storage/emulated/0/DCIM/Test folder/1.png";
+            //string suggImagePath = "C:/Users/Abirk/Downloads/Battery-low-icon--QR.PNG";
 
-            iTextSharp.text.Image suggImage = iTextSharp.text.Image.GetInstance(suggImagePath);
-
+            //tmp = NativeGallery.LoadImageAtPath("C:/Users/Abirk/Downloads/Battery-low-icon--QR.PNG", 1024);
+            byte[] mediaBytes = null;
+ 
+            if (File.Exists("/storage/emulated/0/DCIM/Test folder/1.png"))
+                mediaBytes = File.ReadAllBytes("/storage/emulated/0/DCIM/Test folder/1.png");
+            //mediaBytes = tmp.EncodeToPNG();
+            Debug.Log(mediaBytes);
+            iTextSharp.text.Image suggImage = iTextSharp.text.Image.GetInstance(mediaBytes);
+            Debug.Log(suggImage);
             //Resize image depend upon your need
             suggImage.ScaleToFit(420f, 750f);
 
            
 
             suggImage.Alignment = Element.ALIGN_CENTER;
-
+            
             document.Add(suggImage);
         #endregion
 
@@ -134,7 +144,7 @@ public class PrintingManager : MonoBehaviour
             writer.Close();
         }
 
-        PrintFiles();
+      //  PrintFiles();
     }
 
     private void PrintFiles()
